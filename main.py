@@ -45,3 +45,106 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
+ETAPE 3 — SAISIE D'UN COUP ET MISE A JOUR DU PLATEAU
+Objectifs :
+- Demander un coup au joueur au format "ligne colonne" (indices 0..2)
+- Vérifier que le coup est valide : dans la grille + case vide
+- Placer le symbole du joueur sur la case choisie
+- Réafficher le plateau après le coup
+"""
+
+from typing import List
+
+# -----------------------------
+# 1) MODELE : plateau 3x3 vide
+# -----------------------------
+plateau: List[List[str]] = [[" " for _ in range(3)] for _ in range(3)]
+
+# -----------------------------------
+# 2) AFFICHAGE : grille lisible 0..2
+# -----------------------------------
+def afficher_plateau() -> None:
+    """Affiche la grille avec les indices de lignes/colonnes."""
+    print("   0   1   2")
+    for i, ligne in enumerate(plateau):
+        print(i, " | ".join(ligne))
+        if i < 2:
+            print("  ---+---+---")
+
+# ---------------------------------------------------
+# 3) LOGIQUE : alternance de joueurs et vérif de coup
+# ---------------------------------------------------
+def joueur_suivant(joueur_actuel: str) -> str:
+    """Retourne 'O' si c’était 'X', sinon 'X'."""
+    return "O" if joueur_actuel == "X" else "X"
+
+def coup_valide(lig: int, col: int) -> bool:
+    """
+    Un coup est valide si :
+    - lig et col ∈ {0,1,2}
+    - la case (lig, col) est vide " "
+    """
+    return 0 <= lig < 3 and 0 <= col < 3 and plateau[lig][col] == " "
+
+def jouer_coup(lig: int, col: int, joueur: str) -> bool:
+    """
+    Joue le coup si valide (écrit 'X' ou 'O' dans la case).
+    Retourne True si le coup a été joué, False sinon.
+    """
+    if coup_valide(lig, col):
+        plateau[lig][col] = joueur
+        return True
+    return False
+
+# ------------------------------------------------
+# 4) ENTREE UTILISATEUR : lire "ligne colonne"
+# ------------------------------------------------
+def lire_coup(joueur: str) -> tuple[int, int]:
+    """
+    Demande à l'utilisateur "ligne colonne" (0..2 0..2).
+    - Re-demande tant que le format est mauvais ou le coup invalide.
+    - Retourne (lig, col) sous forme d'entiers.
+    """
+    while True:
+        s = input(f"[ETAPE 3] Joueur {joueur}, entre ton coup (ligne colonne, ex: 1 2) : ").strip()
+        parts = s.split()
+        if len(parts) != 2:
+            print("  → Format attendu : 2 nombres (ex: 0 2).")
+            continue
+        try:
+            lig, col = int(parts[0]), int(parts[1])
+        except ValueError:
+            print("  → Merci d'entrer des nombres entiers (0, 1 ou 2).")
+            continue
+
+        if not coup_valide(lig, col):
+            print("  → Coup invalide (hors limites ou case occupée).")
+            continue
+        return lig, col
+
+# -------------------------
+# 5) DEMO : un tour jouable
+# -------------------------
+def main() -> None:
+    print("[ETAPE 3] Création du plateau et premier coup.")
+    afficher_plateau()
+
+    joueur = "X"  # on commence avec X
+    lig, col = lire_coup(joueur)
+    ok = jouer_coup(lig, col, joueur)
+
+    if ok:
+        print(f"[ETAPE 3] Coup joué : {joueur} en ({lig},{col}) ✅")
+    else:
+        print("[ETAPE 3] (improbable) coup refusé ❌")
+
+    print("[ETAPE 3] Plateau après le coup :")
+    afficher_plateau()
+
+    # Petit aperçu : passage au joueur suivant
+    joueur = joueur_suivant(joueur)
+    print(f"[ETAPE 3] Prochain joueur : {joueur}")
+
+if __name__ == "__main__":
+    main()
