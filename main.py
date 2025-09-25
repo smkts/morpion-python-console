@@ -148,3 +148,97 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+"""
+ETAPE 4 — BOUCLE DE JEU 1v1 (sans détection de victoire)
+Objectifs :
+- Alterner automatiquement entre 'X' et 'O'
+- Demander et valider les coups à chaque tour
+- Arrêter quand 9 coups ont été joués (plateau plein)
+"""
+
+from typing import List, Tuple
+
+# -----------------------------
+# 1) MODELE : plateau 3x3 vide
+# -----------------------------
+plateau: List[List[str]] = [[" " for _ in range(3)] for _ in range(3)]
+
+# -----------------------------------
+# 2) AFFICHAGE : grille lisible 0..2
+# -----------------------------------
+def afficher_plateau() -> None:
+    """Affiche la grille avec les indices de lignes/colonnes."""
+    print("   0   1   2")
+    for i, ligne in enumerate(plateau):
+        print(i, " | ".join(ligne))
+        if i < 2:
+            print("  ---+---+---")
+
+# -------------------------------------------
+# 3) LOGIQUE : alternance + validation de coup
+# -------------------------------------------
+def joueur_suivant(joueur_actuel: str) -> str:
+    """Retourne 'O' si c’était 'X', sinon 'X'."""
+    return "O" if joueur_actuel == "X" else "X"
+
+def coup_valide(lig: int, col: int) -> bool:
+    """Vrai si (lig,col) dans la grille ET case vide."""
+    return 0 <= lig < 3 and 0 <= col < 3 and plateau[lig][col] == " "
+
+def jouer_coup(lig: int, col: int, joueur: str) -> bool:
+    """Pose le symbole si le coup est valide. Renvoie True/False."""
+    if coup_valide(lig, col):
+        plateau[lig][col] = joueur
+        return True
+    return False
+
+# ------------------------------------------------
+# 4) ENTREE UTILISATEUR : lire "ligne colonne"
+# ------------------------------------------------
+def lire_coup(joueur: str) -> Tuple[int, int]:
+    """
+    Demande "ligne colonne" (0..2 0..2).
+    Re-demande tant que le format est mauvais ou la case invalide.
+    """
+    while True:
+        s = input(f"[ETAPE 4] Joueur {joueur}, coup (ligne colonne, ex: 1 2) : ").strip()
+        parts = s.split()
+        if len(parts) != 2:
+            print("  → Format attendu : 2 nombres (ex: 0 2)."); continue
+        try:
+            lig, col = int(parts[0]), int(parts[1])
+        except ValueError:
+            print("  → Merci d'entrer des nombres entiers (0, 1 ou 2)."); continue
+        if not coup_valide(lig, col):
+            print("  → Coup invalide (hors limites ou case occupée)."); continue
+        return lig, col
+
+# ----------------------------------------
+# 5) BOUCLE DE PARTIE (sans victoire)
+# ----------------------------------------
+def partie_1v1_simple() -> None:
+    print("[ETAPE 4] Nouvelle partie — X commence.")
+    afficher_plateau()
+    joueur = "X"
+    coups_joues = 0
+
+    while coups_joues < 9:      # 9 cases → plateau plein
+        lig, col = lire_coup(joueur)
+        if jouer_coup(lig, col, joueur):
+            coups_joues += 1
+            print(f"[ETAPE 4] {joueur} a joué ({lig},{col}).")
+            afficher_plateau()
+            joueur = joueur_suivant(joueur)   # on passe la main
+        else:
+            print("[ETAPE 4] Coup refusé, réessaie.")
+
+    print("[ETAPE 4] Fin — le plateau est plein (victoire/nul à l'étape 5).")
+
+# -------------------------
+# 6) Point d'entrée
+# -------------------------
+def main() -> None:
+    partie_1v1_simple()
+
+if __name__ == "__main__":
+    main()
